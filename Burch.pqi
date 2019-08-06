@@ -1,0 +1,118 @@
+
+TITLE Albite dissolution kinetics with Burch equation and parameter
+
+SOLUTION_SPECIES
+1.0000 H2O  =  OH- +1.0000 H+
+        log_k           -13.995
+1.0000 H2O + 1.0000 Al+++  =  AlOH++ +1.0000 H+
+        log_k           -4.965
+2.0000 H2O + 1.0000 Al+++  =  Al(OH)2+ +2.0000 H+   
+        log_k           -10.921
+2.0000 H2O + 1.0000 Al+++  =  HAlO2 +3.0000 H+
+        log_k           -16.262
+2.0000 H2O + 1.0000 Al+++  =  AlO2- +4.0000 H+
+        log_k           -22.864
+2.0000 H2O + 1.0000 Na+ + 1.0000 Al+++  =  NaAlO2 +4.0000 H+
+        log_k           -23.602
+1.0000 Al+++ + 1.0000 SiO2 + 2.0000 H2O = AlH3SiO4++ + 1.0000 H+
+        log_k           -2.613
+1.0000 Na+ + 1.0000 H2O  =  NaOH +1.0000 H+
+        log_k           -14.205
+1.0000 SiO2 + 1.0000 H2O  =  HSiO3- +1.0000 H+
+        log_k           -9.842
+1.0000 SiO2 + 1.0000 Na+ + 1.0000 H2O  =  NaHSiO3 +1.0000 H+
+        log_k           -8.011
+PHASES
+Albite
+        NaAlSi3O8 +4.0000 H+  =  + 1.0000 Al+++ + 1.0000 Na+ + 2.0000 H2O + 3.0000 SiO2
+        log_k           2.848
+Paragonite
+        NaAl3Si3O10(OH)2 +10.0000 H+  =  + 1.0000 Na+ + 3.0000 Al+++ + 3.0000 SiO2 + 6.0000 H2O
+        log_k           15.755
+Quartz
+        SiO2  =  + 1.0000 SiO2
+        log_k           -3.75
+Kaolinite
+        Al2Si2O5(OH)4 +6.0000 H+  =  + 2.0000 Al+++ + 2.0000 SiO2 + 5.0000 H2O
+        log_k           5.09
+Gibbsite
+        Al(OH)3 +3.0000 H+  =  + 1.0000 Al+++ + 3.0000 H2O
+        log_k           7.73
+
+SOLUTION 1
+ temp 25
+ units mol/kgw
+ ph 6
+ Ca 0.05
+ Cl 3 charge
+ C(4) 0.02
+ Al 1e-7
+EQUILIBRIUM_PHASES 1
+ kaolinite 0 0
+ PARAGONITE 0.0 0
+kinetics 1 define Albite parameters
+ Albite 
+     -m 1
+     -m0 1
+     -parms 0.2  1
+ -steps 631138500000 in 300 steps
+INCREMENTAL_REACTIONS TRUE 
+RATES
+###########
+#Albite
+###########
+Albite
+-start
+1 rem unit should be mol,Liter-1 and second-1
+2 rem parm(1) is surface area in the unit of m2/L 
+3 rem calculation of surface area can be found in the note 
+4 rem M is current moles of minerals,M0 is the initial moles of minerals
+5 rem parm(2) is a correction factor for fields rate relative to lab rate
+6 rem rate here is the product of Palandri's far from equilibrium rate and the f(DGr) term from Burch 1993
+10 rem acid solution parameters
+11 a1=1.45E+0		
+12 E1=58400
+13 n1=0.335
+20 rem neutral solution parameters
+21 a2=4.97E-10
+22 E2=57000
+30 rem base solution parameters
+31 a3=3.00e-5	
+32 E3=55500
+33 n2=-0.317
+36 rem rate=0 if no minerals and undersaturated
+
+41 if (M<0) then goto 200
+42 if (M=0 and SR_mineral<1) then goto 200
+50 SA=parm(1)* (M/M0)^0.67
+60 R=8.31451
+75 Rate1=a1*EXP(-E1/R/TK)*ACT("H+")^n1  #acide rate expression
+80 Rate2=a2*EXP(-E2/R/TK)               #neutral rate expression
+85 Rate3=a3*EXP(-E3/R/TK)*ACT("H+")^n2    #base rate expression
+90 Rate0=(Rate1+Rate2+Rate3)*SA*parm(2)
+95 XX=(Rate1+Rate2+Rate3)
+98 PUT(XX,2)
+
+100 rem f(DGr) term in Burch 1993
+110 SI_mineral=SI("Albite")
+120 F1=0.917746*(1-exp(-8.4E-17*(ABS(2.303*SI_mineral))^15))
+130 F2=0.082254*(1-exp(-ABS(-2.303*SI_mineral)))^1.45
+140 F=F1+F2
+
+150 Rate=Rate0*F
+160 PUT(Rate,1)
+180 moles= rate*Time
+190 rem do not dissolve more minerals than present
+195 if (moles>M) then moles=M
+200 save moles
+-end
+
+SELECTED_OUTPUT
+     -file Burch.txt
+     -reset false
+USER_PUNCH
+     -headings Time(year) rate a_Na+ SI(Albite) pH a_SiO2 a_Al+3 XX
+     -start
+     10 punch TOTAL_TIME/31556925 GET(1) 10^(LA("Na+")) SI("Albite") LA("H+") 10^LA("SiO2") TOT("Al") GET(2)
+     -end
+END     

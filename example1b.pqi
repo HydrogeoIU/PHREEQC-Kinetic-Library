@@ -1,0 +1,30 @@
+DATABASE E:\Research\IUB\Hubin\kinetics\revision2\Phreeqc-bl-kinetics.dat
+TITLE Albite dissolution kinetics
+
+SOLUTION 1
+ temp 25
+ units mol/kgw
+ ph 6
+ Ca 0.05
+ Cl 3 charge
+ C(4) 0.02
+ Al 1e-8
+EQUILIBRIUM_PHASES 1
+ kaolinite 0 0
+ PARAGONITE 0.0 0
+kinetics 1 define Albite parameters
+ Albite 
+     -m 1
+     -m0 1
+     -parms 0.2  1
+ -steps 50000000000 in 1000 steps
+INCREMENTAL_REACTIONS TRUE 
+SELECTED_OUTPUT
+     -file Plandri1b.out
+     -reset false
+USER_PUNCH
+     -headings Time(year) SI(Albite) pH Tot_SiO2 Tot_Al TOT_Na 
+     -start
+     10 punch TOTAL_TIME/31556925 SI("Albite") LA("H+")*(-1) TOT("Si") TOT("Al") TOT("Na") 
+     -end
+END     

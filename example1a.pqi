@@ -1,0 +1,73 @@
+TITLE Albite dissolution kinetics with Palabdri and Kharaka rate equation
+
+SOLUTION 1
+ temp 25
+ units mol/kgw
+ ph 6
+ Ca 0.05
+ Cl 3 charge
+ C(4) 0.02
+ Al   1e-07
+EQUILIBRIUM_PHASES 1
+ kaolinite 0 0
+ PARAGONITE 0.0 0
+kinetics 1 define Albite parameters
+ Albite 
+     -m 1
+     -m0 1
+     -parms 0.2  1
+ -steps 50000000000 in 1000 steps
+INCREMENTAL_REACTIONS TRUE
+SOLUTION_SPECIES
+PHASES
+Paragonite
+Na1Al3Si3O12H2 + 10.0000 H+ = 6.0000 H2O + 3.0000 SiO2    + 1.0000 Na+ + 3.0000 Al+3
+	-analytic	-1.978114e+004	-5.113321e+000	9.188616e+005	7.527118e+003	-4.572623e+007	1.446902e-003
+	-Vm	132.1100
+RATES
+###########
+#Albite
+###########
+Albite
+-start
+1 rem unit should be mol,Liter-1 and second-1
+2 rem parm(1) is surface area in the unit of m2/L 
+3 rem calculation of surface area can be found in the note 
+4 rem M is current moles of minerals M0 is the initial moles of minerals
+5 rem parm(2) is a correction factor for fields rate relative to lab rate
+10 rem acid solution parameters
+11 a1=1.45E+0		
+12 E1=58400
+13 n1=0.335
+20 rem neutral solution parameters
+21 a2=4.97E-10
+22 E2=57000
+30 rem base solution parameters
+31 a3=7.15E-01	
+32 E3=55500
+33 n2=0.317
+36 rem rate=0 if no minerals and undersaturated
+40 SR_mineral=SR("Albite")
+41 if (M<0) then goto 200
+42 if (M=0 and SR_mineral<1) then goto 200
+43 if (M0<=0) then SA=PARM(1) else SA=PARM(1)*(M/M0)^0.67
+50 if (SA<=0) then SA=1
+60 R=8.31451
+75 Rate1=a1*EXP(-E1/R/TK)*ACT("H+")^n1  #acid rate expression
+80 Rate2=a2*EXP(-E2/R/TK)               #neutral rate expression
+85 Rate3=a3*EXP(-E3/R/TK)*ACT("OH-")^n2    #base rate expression
+90 Rate=(Rate1+Rate2+Rate3)*(1-Sr_mineral)*SA*parm(2)
+100 moles= rate*Time
+110 rem do not dissolve more minerals than present
+115 if (moles>M) then moles=M
+200 save moles
+-end
+SELECTED_OUTPUT
+     -file Palndri.txt
+     -reset false
+USER_PUNCH
+     -headings Time(year) SI(Albite) pH Tot_SiO2 Tot_Al TOT_Na 
+     -start
+     10 punch TOTAL_TIME/31556925 SI("Albite") LA("H+")*(-1) TOT("Si") TOT("Al") TOT("Na") 
+     -end
+END     
