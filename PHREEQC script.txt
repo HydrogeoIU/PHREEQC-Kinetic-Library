@@ -1026,8 +1026,8 @@ pyrite
 13 n1=-0.500
 14 n3=0.500
 30 rem neutral solution parameters
-31 a3=2.64E+05		
-32 E3=56900
+31 a2=2.64E+05		
+32 E2=56900
 33 n2=0.500
 36 rem rate=0 if no minerals and undersaturated
 40 SR_mineral=SR("pyrite")
@@ -1037,7 +1037,7 @@ pyrite
 50 if (SA<=0) then SA=1
 60 R=8.31451
 75 Rate1=a1*EXP(-E1/R/TK)*ACT("H+")^n1*ACT("Fe+3")^n3  #acid rate expression
-80 Rate2=a2*EXP(-E2/R/TK)*ACT("O2")               #neutral rate expression
+80 Rate2=a2*EXP(-E2/R/TK)*ACT("O2")^n2               #neutral rate expression
 90 Rate=(Rate1+Rate2)*(1-Sr_mineral)*SA*parm(2)
 100 moles= rate*Time
 200 save moles
@@ -3548,7 +3548,7 @@ Forsterite(ox)
 
 -start
 1 rem dissolution rate of forsterite (with Oxalate, Don) is in solutions of nitric and oxalic acid solutions
-2 rem pH range of 0¨C7 and total oxalate concentrations between 0 and 0.35 m at 25 ¡ãC
+2 rem pH range of 0Â¨C7 and total oxalate concentrations between 0 and 0.35 m at 25 Â¡Ã£C
 10 Jw=10^-7.03*ACT("H+")^0.46
 20 Jox=10^-5.44*TOT("oxalate")^0.4*ACT("H+")^0.47
 25 if (M0<=0) then SA=PARM(1) else SA=PARM(1)*(M/M0)^0.67
